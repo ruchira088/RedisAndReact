@@ -1,0 +1,19 @@
+{
+  "name": "redis_project",
+  "description": "",
+  "main": "app.js",
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react": "^15.0.2",
+    "babel": "*",
+    "jquery": "^2.2.3"
+  }
+}
