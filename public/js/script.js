@@ -61,7 +61,9 @@ const SearchBox = React.createClass(
 		{
 			return (
 				<div id="searchBox">
-					<input 
+					<input
+						className="form-control"
+						placeholder="Search..."
 						onChange={this.handleSearchTextChange} 
 						type="text"/>
 				</div>
@@ -128,20 +130,21 @@ const CommentForm = React.createClass(
 		render: function()
 		{
 			return (
-				<form className="commentForm" onSubmit={this.handleSubmit}>
-					<input 
-						type="text" 
-						value={this.state.author} 
-						onChange={this.authorChanged} 
+				<form role="form" onSubmit={this.handleSubmit}>
+					<hr/>
+					<input
+						type="text"
+						className="form-control"
+						value={this.state.author}
+						onChange={this.authorChanged}
 						placeholder="Your name"/>
-
 					<input 
-						type="text" 
+						type="text"
+						className="form-control"
 						value={this.state.text}
 						onChange={this.textChanged}
 						placeholder="Say something..."/>
-
-					<input type="submit" value="Post"/>
+					<input className="btn btn-primary" type="submit" value="Post"/>
 				</form>
 			);
 		}
@@ -155,14 +158,16 @@ const Comment = React.createClass(
 			const dateString = `${date.toLocaleTimeString()}, ${date.toDateString()}`;
 
 			return (
-				<div className="comment">
-					<div className="date">
-						{dateString}
+				<div className="panel panel-default">
+					<div className="panel-heading">
+						<span className="author">
+							{this.props.author}
+						</span>
+						<span className="date">
+							{dateString}
+						</span>
 					</div>
-					<div className="author">
-						{this.props.author}
-					</div>
-					<div className="contents">
+					<div className="panel-body">
 						{this.props.children}
 					</div>
 				</div>
