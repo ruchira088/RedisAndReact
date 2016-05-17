@@ -1,15 +1,34 @@
-const data = [
-  {id: 1, author: "Pete Hunt", text: "This is one comment"},
-  {id: 2, author: "Jordan Walke", text: "This is my comment"}
-];
-
 const CommentBox = React.createClass(
 	{
 		getInitialState: () => { return {data: []}}
 		,
 		componentDidMount: function()
 		{
-			this.setState({data: data})
+			$.ajax({
+				url: "/comments",
+				dataType: "json"
+			})
+				.done(response => this.setState({data: response}))
+				.fail(() => console.log("Unable to fetch data from server."));
+		}
+		,
+		handleCommentSubmit: function({author, text}, callback)
+		{
+			$.ajax({
+				method: "POST",
+				url: "/comments",
+				contentType: "application/json",
+				data: JSON.stringify({
+					author: author,
+					text: text
+				})
+			})
+				.done(() =>
+				{
+					this.componentDidMount();
+					callback(null);
+				})
+				.fail(() => console.log("Unable to post comment."));
 		}
 		,
 		render: function()
@@ -18,7 +37,7 @@ const CommentBox = React.createClass(
 				<div className="commentBox">
 					<h1>Comments</h1>
 					<CommentList data={this.state.data}/>
-					<CommentForm/>
+					<CommentForm handleCommentSubmit={this.handleCommentSubmit}/>
 				</div>
 			);
 		}
@@ -28,10 +47,11 @@ const CommentList = React.createClass(
 	{
 		render: function()
 		{
+			var id = 0;
 			const comments = this.props.data.map(comment => 
 			{
 				return (
-					<Comment author={comment.author} key={comment.id}>
+					<Comment author={comment.author} key={id++}>
 						{comment.text}
 					</Comment>
 				);
@@ -65,17 +85,17 @@ const CommentForm = React.createClass(
 		handleSubmit: function(event)
 		{
 			event.preventDefault();
-			console.log(`The author is ${this.state.author}`)
-			$.ajax({
-				method: "POST",
-				url: "comments",
-				contentType: "application/json",
-				data: JSON.stringify({
-					author: this.state.author,
-					comment: this.state.text
-				})
-			})
-			this.setState(this.getInitialState());
+
+			this.props.handleCommentSubmit({
+				author: this.state.author,
+				text: this.state.text
+			}, function(err)
+			{
+				if(!err)
+				{
+					this.setState(this.getInitialState())	
+				}
+			}.bind(this))
 		},
 		render: function()
 		{

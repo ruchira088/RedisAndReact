@@ -19,7 +19,7 @@ app.use("/bower", express.static(path.join(__dirname, "bower_components")));
 app.route("/comments")
 	.post((request, response) => 
 	{
-		addToDB(request.body, (err, reply) => 
+		addToDB(request.body, err =>
 		{
 			if(err)
 			{
