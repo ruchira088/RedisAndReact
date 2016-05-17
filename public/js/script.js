@@ -1,6 +1,6 @@
 const CommentBox = React.createClass(
 	{
-		getInitialState: () => { return {data: []}}
+		getInitialState: () => { return {data: [], searchTerm: ""}}
 		,
 		componentDidMount: function()
 		{
@@ -19,6 +19,7 @@ const CommentBox = React.createClass(
 				url: "/comments",
 				contentType: "application/json",
 				data: JSON.stringify({
+					date: Date.now(),
 					author: author,
 					text: text
 				})
@@ -31,13 +32,38 @@ const CommentBox = React.createClass(
 				.fail(() => console.log("Unable to post comment."));
 		}
 		,
+		handleSearch: function(searchTerm)
+		{
+			this.setState({searchTerm: searchTerm})
+		}
+		,
 		render: function()
 		{
 			return (
 				<div className="commentBox">
 					<h1>Comments</h1>
-					<CommentList data={this.state.data}/>
+					<SearchBox search={this.handleSearch}/>
+					<CommentList data={this.state.data} searchTerm={this.state.searchTerm}/>
 					<CommentForm handleCommentSubmit={this.handleCommentSubmit}/>
+				</div>
+			);
+		}
+	});
+
+const SearchBox = React.createClass(
+	{
+		handleSearchTextChange: function({target: input})
+		{
+			this.props.search(input.value)
+		}
+		,
+		render: function()
+		{
+			return (
+				<div id="searchBox">
+					<input 
+						onChange={this.handleSearchTextChange} 
+						type="text"/>
 				</div>
 			);
 		}
@@ -48,14 +74,16 @@ const CommentList = React.createClass(
 		render: function()
 		{
 			var id = 0;
-			const comments = this.props.data.map(comment => 
-			{
-				return (
-					<Comment author={comment.author} key={id++}>
-						{comment.text}
-					</Comment>
-				);
-			})
+			const comments = this.props.data
+				.filter(comment => comment.text.toLowerCase().includes(this.props.searchTerm.toLowerCase()))
+				.map(comment => 
+				{
+					return (
+						<Comment author={comment.author} date={comment.date} key={id++}>
+							{comment.text}
+						</Comment>
+					);
+				})
 
 			return (
 				<div className="commentList">
@@ -123,8 +151,14 @@ const Comment = React.createClass(
 	{
 		render: function()
 		{
+			const date = new Date(this.props.date);
+			const dateString = `${date.toLocaleTimeString()}, ${date.toDateString()}`;
+
 			return (
 				<div className="comment">
+					<div className="date">
+						{dateString}
+					</div>
 					<div className="author">
 						{this.props.author}
 					</div>
